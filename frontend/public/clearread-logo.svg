@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="150" viewBox="0 0 600 150">
+  <title>ClearRead logo</title>
+  <desc>ClearRead wordmark with tagline and brand color palette</desc>
+
+  <style>
+    .logo-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 500; }
+    .logo-sub  { font-family: system-ui, -apple-system, sans-serif; font-weight: 400; fill: #6b6b6b; letter-spacing: 0.12em; }
+  </style>
+
+  <!-- Wordmark: "clear" teal + "read" purple -->
+  <text x="40" y="100" font-size="72" class="logo-text">
+    <tspan fill="#0F6E56">Clear</tspan><tspan fill="#534AB7">Read</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="42" y="128" font-size="13" class="logo-sub">UNDERSTAND · VERIFY · TRUST</text>
+
+
+</svg>
