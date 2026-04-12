@@ -102,7 +102,7 @@ export default function App() {
     setLoadingStates({ outlet: true, analysis: true, source_reliability: true, corroboration: true })
 
     try {
-      const apiBase = import.meta.env.VITE_API_URL ?? ''
+      const apiBase = import.meta.env.VITE_API_URL ?? '/api'
       const res = await fetch(`${apiBase}/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
