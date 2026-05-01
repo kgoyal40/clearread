@@ -34,6 +34,8 @@ NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 
 class AnalyzeRequest(BaseModel):
     url: str
+    article_text: str | None = None
+    title: str | None = None
 
 
 def extract_domain(url: str) -> str:
@@ -509,12 +511,16 @@ async def analyze(request: AnalyzeRequest):
         try:
             loop = asyncio.get_event_loop()
 
-            # Step 1: fetch article
-            try:
-                article_text, title = await loop.run_in_executor(None, fetch_article_sync, url)
-            except HTTPException as e:
-                yield sse("error", {"detail": e.detail})
-                return
+            # Step 1: use provided text or fetch article
+            if request.article_text and len(request.article_text.strip()) > 200:
+                article_text = request.article_text.strip()
+                title = request.title
+            else:
+                try:
+                    article_text, title = await loop.run_in_executor(None, fetch_article_sync, url)
+                except HTTPException as e:
+                    yield sse("error", {"detail": e.detail})
+                    return
 
             domain = extract_domain(url)
             yield sse("title", {"title": title, "url": url, "domain": domain})
