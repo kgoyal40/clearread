@@ -56,36 +56,17 @@ function AnalysisProgress({ loading, loadingStates }) {
   )
 }
 
-function DeepDiveIcon() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-    </svg>
-  )
-}
-
-function ChevronIcon({ open }) {
-  return (
-    <svg className={`w-4 h-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-      fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-    </svg>
-  )
-}
-
 export default function SidePanelApp() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
-  const [deepDive, setDeepDive] = useState(false)
+  const deepDive = true
   const [loadingStates, setLoadingStates] = useState({})
 
   const handleAnalyze = async () => {
     setLoading(true)
     setResult(null)
     setError(null)
-    setDeepDive(false)
     setLoadingStates({ outlet: true, analysis: true, source_reliability: true, corroboration: true })
 
     try {
@@ -184,7 +165,7 @@ export default function SidePanelApp() {
       {/* Header */}
       <div className="bg-white border-b border-slate-200 sticky top-0 z-10 px-4 py-3 flex items-center justify-between">
         <h1 className="font-semibold text-base">
-          <span className="text-[#0F6E56]">Clear</span><span className="text-[#534AB7]">Read</span>
+          <span className="text-[#0F6E56]">Un</span><span className="text-[#534AB7]">slant</span>
         </h1>
         <button
           onClick={handleAnalyze}
@@ -234,16 +215,6 @@ export default function SidePanelApp() {
                 &ldquo;{result.title}&rdquo;
               </h2>
             )}
-
-            {/* Deep Dive toggle */}
-            <button
-              onClick={() => setDeepDive(v => !v)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-xs font-semibold text-slate-600 shadow-sm"
-            >
-              <DeepDiveIcon />
-              Deep Dive
-              <ChevronIcon open={deepDive} />
-            </button>
 
             <ExplanationPanel data={result} deepDive={deepDive} loadingStates={loadingStates} />
             <ReliabilityPanel data={result} deepDive={deepDive} loadingStates={loadingStates} />

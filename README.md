@@ -1,25 +1,23 @@
-# ClearRead
+# Unslant
 
-Paste a news article URL and get a plain-language explanation alongside a reliability assessment of the source outlet.
+A Chrome extension that analyses news articles for bias, credibility, and missing context. Open the side panel on any article, click **Analyse Page**, and get an instant breakdown.
+
+## What it shows
+
+- Plain-language summary of the article
+- Central claim and cross-source corroboration
+- Evidence provided and what context is missing
+- Source reliability: political bias, factual reporting, and credibility rating (via Media Bias/Fact Check)
+- Content flags: emotional language, framing issues, and cited source quality
 
 ## Stack
 
-| Layer    | Tech |
-|----------|------|
-| Backend  | Python · FastAPI · trafilatura · Anthropic Claude |
-| Outlet data | Media Bias/Fact Check via RapidAPI |
-| Frontend | React 18 · Vite · Tailwind CSS |
-
----
-
-## Prerequisites
-
-- Python 3.11+
-- Node.js 18+
-- An [Anthropic API key](https://console.anthropic.com/)
-- A [RapidAPI key](https://rapidapi.com/) subscribed to the [Media Bias/Fact Check API](https://rapidapi.com/media-bias-fact-check-media-bias-fact-check-default/api/media-bias-fact-check)
-
-> **Note:** The app works without a RapidAPI key — the outlet reliability panel will display a "not configured" message, while the article analysis continues to work normally.
+| Layer        | Tech                                                  |
+|--------------|-------------------------------------------------------|
+| Extension    | Chrome Manifest V3 · React 18 · Vite · Tailwind CSS  |
+| Backend      | Python · FastAPI · Anthropic Claude · trafilatura     |
+| Outlet data  | Media Bias/Fact Check via RapidAPI                    |
+| Corroboration| NewsAPI                                               |
 
 ---
 
@@ -36,121 +34,71 @@ Edit `backend/.env`:
 ```env
 ANTHROPIC_API_KEY=sk-ant-...
 RAPIDAPI_KEY=your_rapidapi_key_here
+NEWS_API_KEY=your_newsapi_key_here
 ```
 
 ### 2. Start the backend
 
 ```bash
 cd backend
-
-# Create and activate a virtual environment
 python -m venv venv
-source venv/bin/activate        # macOS / Linux
-# venv\Scripts\activate         # Windows
-
-# Install dependencies
+source venv/bin/activate
 pip install -r requirements.txt
-
-# Run the API server
 uvicorn main:app --reload --port 8000
 ```
 
-The API will be available at **http://localhost:8000**. Visit `/docs` for the interactive Swagger UI.
-
-### 3. Start the frontend
+### 3. Build the extension
 
 ```bash
-cd frontend
+cd extension
 npm install
-npm run dev
+npx vite build
 ```
 
-The app will be available at **http://localhost:5173**
+### 4. Load in Chrome
+
+1. Go to `chrome://extensions/`
+2. Enable **Developer mode**
+3. Click **Load unpacked** and select the `extension/` folder
+
+Navigate to any news article and click the Unslant icon in the toolbar to open the side panel.
 
 ---
 
-## API Reference
+## Deployment
 
-### `POST /analyze`
+- **Backend** is deployed on [Railway](https://railway.app)
+- **Extension** is published on the [Chrome Web Store](https://chrome.google.com/webstore)
 
-**Request body:**
-```json
-{ "url": "https://example.com/some-article" }
-```
-
-**Successful response:**
-```json
-{
-  "url": "https://example.com/some-article",
-  "domain": "example.com",
-  "title": "Article headline (if extractable)",
-  "plain_summary": "2–3 sentence plain-language summary.",
-  "article_analysis": {
-    "central_claim": "One sentence stating the main thesis.",
-    "evidence_provided": "Description of evidence, data, or sources cited.",
-    "content_type": "news | opinion | analysis | satire | press_release | unknown",
-    "what_is_missing": "Context or counterarguments absent from the article."
-  },
-  "reliability_flags": {
-    "cites_sources": true,
-    "emotionally_loaded_language": false,
-    "style": "news | opinion | mixed",
-    "cites_sources_explanation": "Explanation of sourcing behaviour.",
-    "emotionally_loaded_explanation": "Explanation if emotional language found, else empty string."
-  },
-  "outlet": {
-    "found": true,
-    "name": "Example News",
-    "bias_rating": "Center",
-    "factual_reporting": "HIGH",
-    "credibility_rating": "HIGH CREDIBILITY",
-    "country": "United States",
-    "media_type": "Online",
-    "source_url": "example.com"
-  }
-}
-```
-
-**Error responses:**
-
-| Status | Cause |
-|--------|-------|
-| `400` | URL does not start with `http://` or `https://` |
-| `422` | Article is behind a paywall, requires login, or the page has no readable content |
-| `500` | Missing `ANTHROPIC_API_KEY` or unexpected server error |
-
----
-
-## How it works
-
-1. **Article extraction** — [trafilatura](https://trafilatura.readthedocs.io/) fetches the page and strips boilerplate, leaving only article body text.
-2. **Outlet lookup** — the root domain is queried against the MBFC RapidAPI to retrieve bias rating, factual reporting score, and credibility rating.
-3. **Claude analysis** — the article text (truncated to 8 000 characters) is sent to `claude-sonnet-4-6` which returns a structured JSON response containing the summary, central claim, evidence assessment, content-type classification, and reliability flags.
-4. **Combined response** — all three results are merged and returned in a single JSON payload to the frontend.
+Set the `ALLOWED_ORIGINS` env var on Railway to include your extension's `chrome-extension://<id>` origin.
 
 ---
 
 ## Project structure
 
 ```
-clearread/
+unslant/
 ├── backend/
-│   ├── main.py            # FastAPI app — all endpoints and logic
+│   ├── main.py              # FastAPI app — all endpoints and logic
 │   ├── requirements.txt
-│   └── .env.example
-├── frontend/
+│   ├── .env.example
+│   ├── railway.toml
+│   └── Procfile
+├── extension/
+│   ├── manifest.json        # Chrome Manifest V3
+│   ├── background.js        # Service worker — opens side panel
+│   ├── content.js           # Content script — extracts article text
 │   ├── src/
-│   │   ├── App.jsx                        # Root component, state management
+│   │   ├── SidePanelApp.jsx # Main UI component
 │   │   ├── components/
-│   │   │   ├── UrlInput.jsx               # URL input form
-│   │   │   ├── ExplanationPanel.jsx       # Left panel: article breakdown
-│   │   │   └── ReliabilityPanel.jsx       # Right panel: source reliability
+│   │   │   ├── ExplanationPanel.jsx
+│   │   │   └── ReliabilityPanel.jsx
 │   │   ├── main.jsx
 │   │   └── index.css
 │   ├── index.html
+│   ├── icons/
 │   ├── package.json
-│   ├── vite.config.js     # Proxies /api/* → http://localhost:8000/*
-│   ├── tailwind.config.js
-│   └── postcss.config.js
+│   └── vite.config.js
+├── PRIVACY_POLICY.md
 └── README.md
 ```

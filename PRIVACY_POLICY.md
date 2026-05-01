@@ -1,10 +1,10 @@
-# ClearRead Privacy Policy
+# Unslant Privacy Policy
 
 **Last updated:** May 1, 2026
 
-## What ClearRead does
+## What Unslant does
 
-ClearRead is a browser extension that analyses news articles for bias, credibility, and missing context. When you click "Analyse Page", the extension extracts the article text from the page you are viewing and sends it to our backend server for analysis.
+Unslant is a browser extension that analyses news articles for bias, credibility, and missing context. When you click "Analyse Page", the extension extracts the article text from the page you are viewing and sends it to our backend server for analysis.
 
 ## What data is collected
 
@@ -25,7 +25,7 @@ Article analysis is performed using the Anthropic Claude API. Article text is se
 
 ## Data retention
 
-ClearRead does not store any user data. Article text and URLs are processed in memory and discarded immediately after the analysis response is returned.
+Unslant does not store any user data. Article text and URLs are processed in memory and discarded immediately after the analysis response is returned.
 
 ## Contact
 

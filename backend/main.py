@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 load_dotenv()
 
-app = FastAPI(title="ClearRead API")
+app = FastAPI(title="Unslant API")
 
 _raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000")
 _allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
